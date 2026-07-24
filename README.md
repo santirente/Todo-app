@@ -57,7 +57,7 @@ pod install
 cd ../..
 
 # Abrir el Workspace de Xcode
-open platforms/ios/Todo-ionic-app.xcworkspace
+open platforms/ios/App.xcworkspace
 ```
 *En Xcode:*
 1. Ve a la pestaña **Signing & Capabilities** del proyecto.

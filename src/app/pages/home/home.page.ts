@@ -30,7 +30,6 @@ export class HomePage {
 
   public selectedCategoryId = signal<string | null>(null);
 
-  // Computed signal para filtrar las tareas reactivamente
   public filteredTasks = computed(() => {
     const tasks = this.taskService.tasks();
     const catId = this.selectedCategoryId();

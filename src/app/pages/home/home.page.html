@@ -11,7 +11,6 @@
     </ion-toolbar>
   </ion-header>
 
-  <!-- Consumo de Firebase Remote Config con @if y Signals -->
   @if (remoteConfig.categoryFilterEnabled()) {
     <div class="category-filters glassmorphism">
       <ion-segment [value]="selectedCategoryId() || 'all'" (ionChange)="setCategory($event)" mode="ios">
@@ -27,7 +26,6 @@
     </div>
   }
 
-  <!-- Lista virtualizada con CDK (Rendimiento) -->
   <cdk-virtual-scroll-viewport itemSize="70" class="task-viewport">
     <ion-list lines="none" class="transparent-list">
       @for (task of filteredTasks(); track task.id) {

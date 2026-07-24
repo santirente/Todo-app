@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { Category } from '../models/todo.model';
 import { StorageService } from './storage.service';
 
@@ -7,8 +6,8 @@ import { StorageService } from './storage.service';
   providedIn: 'root',
 })
 export class CategoryService {
-  private _categories = new BehaviorSubject<Category[]>([]);
-  public categories$ = this._categories.asObservable();
+  private _categories = signal<Category[]>([]);
+  public categories = this._categories.asReadonly();
   private readonly STORAGE_KEY = 'categories';
 
   constructor(private storageService: StorageService) {
@@ -25,7 +24,7 @@ export class CategoryService {
       ];
       await this.storageService.set(this.STORAGE_KEY, categories);
     }
-    this._categories.next(categories);
+    this._categories.set(categories);
   }
 
   async addCategory(name: string, color: string) {
@@ -34,24 +33,25 @@ export class CategoryService {
       name,
       color
     };
-    const updatedCategories = [...this._categories.getValue(), newCategory];
-    this._categories.next(updatedCategories);
-    await this.storageService.set(this.STORAGE_KEY, updatedCategories);
+    this._categories.update(cats => [...cats, newCategory]);
+    await this.storageService.set(this.STORAGE_KEY, this._categories());
   }
 
   async updateCategory(updatedCategory: Category) {
-    const currentCategories = this._categories.getValue();
-    const index = currentCategories.findIndex(c => c.id === updatedCategory.id);
-    if (index > -1) {
-      currentCategories[index] = updatedCategory;
-      this._categories.next([...currentCategories]);
-      await this.storageService.set(this.STORAGE_KEY, currentCategories);
-    }
+    this._categories.update(cats => {
+      const index = cats.findIndex(c => c.id === updatedCategory.id);
+      if (index > -1) {
+        const newCats = [...cats];
+        newCats[index] = updatedCategory;
+        return newCats;
+      }
+      return cats;
+    });
+    await this.storageService.set(this.STORAGE_KEY, this._categories());
   }
 
   async deleteCategory(categoryId: string) {
-    const updatedCategories = this._categories.getValue().filter(c => c.id !== categoryId);
-    this._categories.next(updatedCategories);
-    await this.storageService.set(this.STORAGE_KEY, updatedCategories);
+    this._categories.update(cats => cats.filter(c => c.id !== categoryId));
+    await this.storageService.set(this.STORAGE_KEY, this._categories());
   }
 }

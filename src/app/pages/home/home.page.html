@@ -1,0 +1,57 @@
+<ion-header class="ion-no-border premium-header">
+  <ion-toolbar>
+    <ion-title>My Tasks</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="premium-bg">
+  <ion-header collapse="condense" class="ion-no-border premium-header">
+    <ion-toolbar>
+      <ion-title size="large">My Tasks</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  @if (remoteConfig.categoryFilterEnabled()) {
+    <div class="category-filters glassmorphism">
+      <ion-segment [value]="selectedCategoryId() || 'all'" (ionChange)="setCategory($event)" mode="ios">
+        <ion-segment-button value="all">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        @for (category of categoryService.categories(); track category.id) {
+          <ion-segment-button [value]="category.id">
+            <ion-label>{{ category.name }}</ion-label>
+          </ion-segment-button>
+        }
+      </ion-segment>
+    </div>
+  }
+
+  <cdk-virtual-scroll-viewport itemSize="70" class="task-viewport">
+    <ion-list lines="none" class="transparent-list">
+      @for (task of filteredTasks(); track task.id) {
+        <ion-item class="task-item glassmorphism">
+          <ion-checkbox slot="start" [checked]="task.completed" (ionChange)="toggleTask(task)"></ion-checkbox>
+          <ion-label [class.completed]="task.completed">
+            <h2>{{ task.title }}</h2>
+          </ion-label>
+          @if (task.categoryId) {
+            <ion-badge slot="end" [color]="getCategoryColor(task.categoryId)">
+              •
+            </ion-badge>
+          }
+          <ion-icon name="trash" slot="end" color="danger" (click)="deleteTask(task.id)"></ion-icon>
+        </ion-item>
+      } @empty {
+        <div class="empty-state">
+          <p>No tasks found.</p>
+        </div>
+      }
+    </ion-list>
+  </cdk-virtual-scroll-viewport>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addTask()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

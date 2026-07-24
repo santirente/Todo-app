@@ -23,6 +23,49 @@ La aplicación utiliza **Firebase Remote Config** para controlar dinámicamente 
 4. Cambia su valor a `false` y **publica los cambios**.
 5. Ve a la aplicación y recarga (o espera unos segundos según el intervalo de fetch). La barra de categorías desaparecerá instantáneamente sin necesidad de recompilar o redesplegar la aplicación, gracias a la implementación reactiva con Angular Signals.
 
+## Compilación Nativa (Android & iOS)
+
+Dado que este proyecto utiliza la arquitectura moderna de compilación de Angular 17+ (Application Builder) y la integración nativa a través de **Cordova** tradicional en lugar de Capacitor, la forma correcta de sincronizar y compilar es utilizando el CLI de Cordova directamente tras compilar los assets web:
+
+**1. Compilar el código web de Angular para producción:**
+```bash
+ionic build --configuration production
+```
+Esto generará los assets optimizados en la carpeta `/www`.
+
+**2. Preparar la plataforma nativa (Copiar assets a Cordova):**
+```bash
+# Para Android
+npx cordova prepare android
+
+# Para iOS
+npx cordova prepare ios
+```
+
+**3. Generación del binario en Android (.apk):**
+```bash
+# Compilar el APK de debug directamente por terminal:
+npx cordova build android --debug
+```
+*Alternativa con UI (Recomendado):* Abre la carpeta `platforms/android` en Android Studio y ejecuta `Build > Build Bundle(s) / APK(s) > Build APK(s)`.
+
+**4. Generación del binario en iOS (.ipa):**
+```bash
+# Instalar los Pods en la carpeta de iOS
+cd platforms/ios
+pod install
+cd ../..
+
+# Abrir el Workspace de Xcode
+open platforms/ios/Todo-ionic-app.xcworkspace
+```
+*En Xcode:*
+1. Ve a la pestaña **Signing & Capabilities** del proyecto.
+2. Selecciona tu cuenta de Apple ID personal en **Team**.
+3. Selecciona **"Any iOS Device (arm64)"** en la barra superior.
+4. Ve al menú **Product > Archive**.
+5. Tras completarse, exporta el archivo `.ipa` usando el botón **Distribute App**.
+
 ---
 
 ## 🧠 Respuestas Teóricas (Nivel Senior)

@@ -1,7 +1,8 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel,
-  IonCheckbox, IonFab, IonFabButton, IonIcon, IonBadge, IonSegment, IonSegmentButton
+  IonCheckbox, IonFab, IonFabButton, IonIcon, IonBadge, IonSegment, IonSegmentButton,
+  AlertController
 } from '@ionic/angular/standalone';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { TaskService } from '../../core/services/task.service';
@@ -25,6 +26,7 @@ export class HomePage {
   public taskService = inject(TaskService);
   public categoryService = inject(CategoryService);
   public remoteConfig = inject(RemoteConfigService);
+  private alertController = inject(AlertController);
 
   public selectedCategoryId = signal<string | null>(null);
 
@@ -49,14 +51,36 @@ export class HomePage {
   }
 
   async addTask() {
-    const title = prompt('Nueva tarea:');
-    if (title) {
-      await this.taskService.addTask({
-        title,
-        completed: false,
-        categoryId: this.selectedCategoryId() || undefined
-      });
-    }
+    const alert = await this.alertController.create({
+      header: 'Nueva Tarea',
+      inputs: [
+        {
+          name: 'title',
+          type: 'text',
+          placeholder: '¿Qué vas a hacer?'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Agregar',
+          handler: async (data) => {
+            if (data.title && data.title.trim() !== '') {
+              await this.taskService.addTask({
+                title: data.title.trim(),
+                completed: false,
+                categoryId: this.selectedCategoryId() || undefined
+              });
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   setCategory(event: any) {
